@@ -65,6 +65,26 @@
             color: rgba(255, 255, 255, 0.4);
             /* S'estompe légèrement quand on tape */
         }
+
+        @keyframes shake {
+
+            0%,
+            100% {
+                transform: translateX(0);
+            }
+
+            25% {
+                transform: translateX(-5px);
+            }
+
+            75% {
+                transform: translateX(5px);
+            }
+        }
+
+        .shake {
+            animation: shake 0.3s ease-in-out;
+        }
     </style>
 </head>
 
@@ -140,7 +160,9 @@
 
         <div class="mt-12 p-4 rounded-2xl border border-dashed border-white/20 text-center">
             <p class="text-sm text-gray-400">Toi aussi tu veux des secrets ?</p>
-            <a href="index.html" class="text-purple-400 font-bold hover:underline">Crée ton lien SecretStory ici</a>
+            <a href="index.html" class="text-purple-400 font-bold hover:underline">
+                Crée ton lien SecretStory ici 🚀
+            </a>
         </div>
 
     </main>

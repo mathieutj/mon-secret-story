@@ -22,6 +22,26 @@
         .bg-gradient {
             background: radial-gradient(circle at top right, #4c1d95, #1e1b4b, #000000);
         }
+
+        @keyframes shake {
+
+            0%,
+            100% {
+                transform: translateX(0);
+            }
+
+            25% {
+                transform: translateX(-5px);
+            }
+
+            75% {
+                transform: translateX(5px);
+            }
+        }
+
+        .shake {
+            animation: shake 0.3s ease-in-out;
+        }
     </style>
 </head>
 
@@ -125,17 +145,26 @@
 
         // Fonction pour rediriger vers les messages
         function goToMessages(event) {
-            if (event) event.preventDefault(); // Empêche le comportement par défaut du lien
+            if (event) event.preventDefault();
 
             const myUsername = localStorage.getItem('my_secret_username');
+            const inputField = document.querySelector('input');
 
             if (myUsername) {
-                // Si le pseudo existe, on va vers les messages
+                // Cas 1 : L'utilisateur est connu, on le dirige vers ses messages
                 window.location.href = 'messages.html';
             } else {
-                // Sinon, on prévient l'utilisateur qu'il n'a pas encore de compte
-                alert("Tu n'as pas encore créé de lien. Choisis un pseudo d'abord !");
-                document.querySelector('input').focus();
+                // Cas 2 : Utilisateur inconnu, on attire son attention sur l'input
+                inputField.focus();
+                inputField.placeholder = "Crée ton pseudo d'abord ! 😉";
+
+                // On ajoute l'animation de secousse
+                inputField.classList.add('shake', 'border-purple-500');
+
+                // On retire l'animation après 300ms pour pouvoir la refaire plus tard
+                setTimeout(() => {
+                    inputField.classList.remove('shake');
+                }, 300);
             }
         }
 
