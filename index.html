@@ -147,24 +147,20 @@
         function goToMessages(event) {
             if (event) event.preventDefault();
 
+            // ATTENTION : Vérifie bien l'orthographe de 'my_secret_username'
             const myUsername = localStorage.getItem('my_secret_username');
-            const inputField = document.querySelector('input');
 
-            if (myUsername) {
-                // Cas 1 : L'utilisateur est connu, on le dirige vers ses messages
+            if (myUsername && myUsername.trim() !== "") {
+                // Si trouvé, on va aux messages
                 window.location.href = 'messages.html';
             } else {
-                // Cas 2 : Utilisateur inconnu, on attire son attention sur l'input
+                // Si non trouvé, on force l'utilisateur à créer un pseudo
+                const inputField = document.querySelector('input');
                 inputField.focus();
-                inputField.placeholder = "Crée ton pseudo d'abord ! 😉";
+                inputField.placeholder = "Aucun compte trouvé. Crée ton pseudo !";
+                inputField.classList.add('shake', 'border-red-500');
 
-                // On ajoute l'animation de secousse
-                inputField.classList.add('shake', 'border-purple-500');
-
-                // On retire l'animation après 300ms pour pouvoir la refaire plus tard
-                setTimeout(() => {
-                    inputField.classList.remove('shake');
-                }, 300);
+                setTimeout(() => inputField.classList.remove('shake'), 300);
             }
         }
 
