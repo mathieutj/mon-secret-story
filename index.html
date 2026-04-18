@@ -109,7 +109,7 @@
     </main>
 
     <footer class="py-8">
-        <a href="messages.html"
+        <a href="#" onclick="goToMessages(event)"
             class="text-sm text-gray-500 hover:text-white transition-colors underline decoration-gray-700">
             J'ai déjà un lien, voir mes messages
         </a>
@@ -118,37 +118,28 @@
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
     <script>
-        // Initialisation avec la BONNE clé anon
+        // Initialisation Supabase
         const supabaseUrl = 'https://esobynkttegitxvdeuyv.supabase.co';
         const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVzb2J5bmt0dGVnaXR4dmRldXl2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjczNjE2MTcsImV4cCI6MjA4MjkzNzYxN30.jrvrusfMyAiYb5yUw7eBH3vhIRpx1663CoxpczZtYoI';
         const _supabase = supabase.createClient(supabaseUrl, supabaseKey);
 
-        // Test de connexion immédiat
-        async function checkConnection() {
-            try {
-                const { data, error } = await _supabase.from('profiles').select('count', { count: 'exact', head: true });
-                if (error) {
-                    console.error("⚠️ Problème de configuration Supabase :", error.message);
-                    // Si l'erreur est liée aux clés, on prévient discrètement
-                    if (error.message.includes("API key")) {
-                        alert("Erreur de clé API. Vérifie ta configuration Supabase !");
-                    }
-                } else {
-                    console.log("✅ Connexion à SecretStory établie avec succès !");
-                }
-            } catch (err) {
-                console.error("❌ Impossible de joindre la base de données :", err);
+        // Fonction pour rediriger vers les messages
+        function goToMessages(event) {
+            if (event) event.preventDefault(); // Empêche le comportement par défaut du lien
+
+            const myUsername = localStorage.getItem('my_secret_username');
+
+            if (myUsername) {
+                // Si le pseudo existe, on va vers les messages
+                window.location.href = 'messages.html';
+            } else {
+                // Sinon, on prévient l'utilisateur qu'il n'a pas encore de compte
+                alert("Tu n'as pas encore créé de lien. Choisis un pseudo d'abord !");
+                document.querySelector('input').focus();
             }
         }
-        checkConnection();
 
-        // Vérification au chargement : si déjà un pseudo, go aux messages !
-        window.onload = () => {
-            if (localStorage.getItem('my_secret_username')) {
-                window.location.href = 'messages.html';
-            }
-        };
-
+        // On garde la création de lien
         async function createLink() {
             const inputField = document.querySelector('input');
             const username = inputField.value.trim().toLowerCase();
@@ -159,64 +150,22 @@
                 return;
             }
 
-            // Effet visuel de chargement
             btn.disabled = true;
             btn.innerText = "Création en cours... ⏳";
 
             try {
-                // On enregistre dans la table 'profiles'
-                const { error } = await _supabase
-                    .from('profiles')
-                    .insert([{ username: username }]);
+                const { error } = await _supabase.from('profiles').insert([{ username: username }]);
 
-                // Si succès ou si le pseudo existe déjà (on considère ça comme une connexion)
                 if (!error || error.code === '23505') {
                     localStorage.setItem('my_secret_username', username);
-                    window.location.href = 'success.html'; // <--- Ici, on change juste de page
+                    window.location.href = 'success.html';
                 } else {
                     throw error;
                 }
             } catch (err) {
-                console.error("Erreur détaillée:", err);
-                alert("Oups ! Impossible de créer ce lien. Vérifie ta connexion ou tente un autre pseudo.");
+                alert("Erreur. Tente un autre pseudo.");
                 btn.disabled = false;
                 btn.innerText = "Générer mon lien 🚀";
-            }
-        }
-
-        // --- LOGIQUE PAGE RÉCEPTION (Envoyer un secret) ---
-        async function sendSecret() {
-            // On récupère le pseudo dans l'URL (ex: ?u=momo229)
-            const urlParams = new URLSearchParams(window.location.search);
-            const receiver = urlParams.get('u');
-            const text = document.getElementById('secretInput').value;
-
-            if (!text) return alert("Écris quelque chose !");
-
-            const { error } = await _supabase.from('secrets').insert([
-                { receiver_username: receiver, content: text }
-            ]);
-
-            if (!error) {
-                alert("Secret envoyé !");
-                document.getElementById('secretInput').value = "";
-            }
-        }
-
-        // --- LOGIQUE DASHBOARD (Afficher ses secrets) ---
-        async function loadMySecrets() {
-            const myUsername = localStorage.getItem('my_secret_username');
-            if (!myUsername) return window.location.href = 'index.html';
-
-            const { data, error } = await _supabase
-                .from('secrets')
-                .select('*')
-                .eq('receiver_username', myUsername)
-                .order('created_at', { ascending: false });
-
-            if (data) {
-                // Ici, on injecterait les données dans le HTML du Dashboard
-                console.log("Mes secrets reçus :", data);
             }
         }
     </script>
