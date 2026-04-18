@@ -1,0 +1,16 @@
+{
+    "rewrites": [
+        {
+            "source": "/u/:username",
+            "destination": "/users.html?u=:username"
+        },
+        {
+            "source": "/messages",
+            "destination": "/messages.html"
+        },
+        {
+            "source": "/success",
+            "destination": "/success.html"
+        }
+    ]
+}
